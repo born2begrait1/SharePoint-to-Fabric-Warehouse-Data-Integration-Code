@@ -1,0 +1,50 @@
+CREATE TABLE SharePoint_Staging
+(
+OrderDate DATE,
+Year INT,
+Region VARCHAR(20),
+SubCategory VARCHAR(30),
+Product VARCHAR(40),
+Price INT,
+Units INT,
+Sales INT
+);
+
+CREATE TABLE Final_Sales
+(
+OrderDate DATE,
+Year INT,
+Region VARCHAR(20),
+SubCategory VARCHAR(30),
+Product VARCHAR(40),
+Price INT,
+Units INT,
+Sales INT
+);
+
+CREATE TABLE Incremental_Date_Table
+(
+TableName VARCHAR(255),
+IncrementalDateValue DATE
+);
+
+INSERT INTO Incremental_Date_Table
+
+VALUES('SharePoint_Staging','1/1/2015 12:00:00 AM');
+
+
+CREATE PROCEDURE update_watermark_in_fabric_warehouse @LastModifiedDate DATE, @TableName VARCHAR(50)
+AS
+BEGIN
+    UPDATE Incremental_Date_Table
+    SET [IncrementalDateValue] = @LastModifiedDate
+    WHERE [TableName] = @TableName
+END;
+
+
+Lookup 1 Name: Old_Incremental_Activity
+Query: SELECT MAX(IncrementalDateValue) AS Old_Date FROM Incremental_Date_Table WHERE TableName = 'SharePoint_Staging';
+
+
+Lookup 2 Name: New_Incremental_Activity
+Query: SELECT MAX(OrderDate) AS Old_Date FROM SharePoint_Staging;
